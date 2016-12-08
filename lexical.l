@@ -1,12 +1,9 @@
 %{
-#include "string.h"
-#include "stdio.h"
-#include "stdlib.h"
+#include <cstring>
+#include <cstdio>
 #include "syntax.tab.h"
 #include "debug.h"
 
-#define true 1
-#define false 0
 %}
 
 %option caseless

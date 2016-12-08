@@ -1,6 +1,9 @@
 %{
-#include<stdio.h>
+#include<cstdio>
 #include"lex.yy.c"
+
+extern int yyerror(char * msg);
+
 %}
 
 %locations
