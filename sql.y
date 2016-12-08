@@ -29,6 +29,7 @@ int error_exists;
 %token <error_exists>SELECT
 %token <error_exists>FROM
 %token <error_exists>WHERE
+%token <error_exists>STRING
 
 
 %left    OR
@@ -41,7 +42,7 @@ int error_exists;
 
 %type <error_exists> query query_body select_part from_part bool_exp
 %type <error_exists> select_obj column from_obj nickname
-%type <error_exists> exp
+%type <error_exists> exp select_objs
 
 %%
 
@@ -53,7 +54,11 @@ query_body : SELECT select_part FROM from_part WHERE bool_exp
       | SELECT select_part FROM from_part
       ;
 
-select_part : select_obj
+select_part : select_objs
+            | STAR
+            ;
+
+select_objs : select_obj
             | select_obj COMMA select_part
             ;
 
@@ -66,7 +71,7 @@ from_part : from_obj
           ;
 
 from_obj : ID
-         | ID COMMA nickname
+         | ID nickname
          ;
 
 bool_exp : bool_exp AND bool_exp
@@ -84,9 +89,8 @@ exp : column PLUS column
     | column
     | INT
     | FLOAT
+    | STRING
     ;
-
-
 
 column : ID DOT ID
        | ID
@@ -98,5 +102,5 @@ nickname : ID
 %%
 
 int yyerror(char * msg) {
-    printf("Error exists in SQL");
+    printf("Error exists in SQL\n");
 }
