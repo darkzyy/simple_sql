@@ -20,10 +20,10 @@ YFO = $(YFC:.c=.o)
 TEST_FILE_LIST = $(shell find ../Test/ -name "*.cmm")
 
 parser: syntax $(filter-out $(LFO),$(OBJS))
-	$(CC) -o parser $(filter-out $(LFO),$(OBJS)) -lfl -ly
+	$(CC) -o parser $(filter-out $(LFO),$(OBJS)) -lfl -ly -std=c++11
 
 syntax: lexical syntax-c
-	$(CC) -c $(YFC) -o $(YFO)
+	$(CC) -c $(YFC) -o $(YFO) -std=c++11
 
 lexical: $(LFILE)
 	$(FLEX) -o $(LFC) $(LFILE)
