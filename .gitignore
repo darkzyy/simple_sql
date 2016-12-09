@@ -1,0 +1,7 @@
+*.o
+lex.yy.c
+parser
+syntax.output
+syntax.tab.c
+syntax.tab.h
+syntax.tab.o

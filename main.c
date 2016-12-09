@@ -1,5 +1,6 @@
-#include<stdio.h>
-#include<string.h>
+#include<cstdio>
+#include<string>
+#include<cstring>
 #include"syntax.tab.h"
 
 //#define __LEXER_DEBUG__
