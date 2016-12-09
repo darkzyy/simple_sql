@@ -5,13 +5,16 @@
 #include<unordered_map>
 #include<string>
 #include<iostream>
+#include<list>
+#include<algorithm>
 
 using namespace std;
 
 extern int yyerror(char * msg);
 extern void add_table(string *s);
 extern void add_table2(string *s);
-extern bool check_table_sel();
+extern void check_table_sel();
+extern void check_func(string *s);
 
 unordered_map<string, int> selected_table;
 unordered_map<string, int> from_table;
@@ -19,6 +22,7 @@ unordered_map<string, int> from_table;
 bool in_sel = false;
 bool in_from = false;
 bool in_where = false;
+bool error_exists = false;
 
 %}
 
@@ -72,8 +76,13 @@ query : query_body SEMI
       | query_body
       ;
 
-query_body : mand
-           | mand WHERE {in_where = true;} bool_exp {in_where = false;}
+query_body : mand {if (!error_exists) {cout << "OK\n";}}
+           | mand WHERE {in_where = true;} bool_exp {
+            in_where = false;
+            if (!error_exists) {
+                cout << "OK\n";
+            }
+           }
            ;
 
 mand : SELECT select_part FROM {in_from = true;} from_part {in_from = false;
@@ -89,6 +98,7 @@ select_objs : select_obj
 
 select_obj : column
            | column nickname
+           | ID {check_func($1.str);} LP select_objs RP
            ;
 
 from_part : from_obj
@@ -127,26 +137,29 @@ nickname : ID
 %%
 
 int yyerror(char * msg) {
+    error_exists = true;
     printf("Error exists in SQL\n");
 }
 
-bool check_table_sel() {
+void check_table_sel() {
     for (auto it = selected_table.begin();
             it != selected_table.end(); it++) {
         if (from_table.find(it->first) == from_table.end()) {
 
+/*
             for (auto x = from_table.begin();
                     x != from_table.end(); x++) {
                 std::cout << x->first << endl;;
             }
             std::cout << it->first << endl;
+*/
             Log("Unselected table in SELECT");
             yyerror(nullptr);
         }
     }
 }
 
-bool check_table_where(string *s) {
+void check_table_where(string *s) {
     if (from_table.find(*s) == from_table.end()) {
         Log("Unselected table in WHERE");
         yyerror(nullptr);
@@ -170,4 +183,27 @@ void add_table2(string *s) {
     }
     assert(!in_where);
     from_table.insert({*s, 0});
+}
+
+list<string> supported_functions = {
+    "count",
+    "max",
+    "min",
+    "avg",
+    "sum",
+    "sqrt",
+    "rand",
+    "concat",
+    "numeric",
+    "string"
+};
+
+void check_func(string *s) {
+    transform(s->begin(), s->end(), s->begin(), ::tolower);
+    list<string>::iterator it = find(supported_functions.begin(),
+            supported_functions.end(), *s);
+    if (it == supported_functions.end()) {
+        Log("Unsupported Function!");
+        yyerror(nullptr);
+    }
 }
